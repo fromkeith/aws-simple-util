@@ -2,8 +2,8 @@
   "name": "aws-simple-util",
   "version": "0.0.1",
   "description": "A simple wrapper around some aws services.",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
     "prepublish": "npm run build"
