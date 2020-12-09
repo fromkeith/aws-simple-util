@@ -30,6 +30,25 @@ const config = await aws('us-west-2').ssm.getConfig('/live/serviceA');
 ## DynamoDB
 
 * Adds a rate limiter for reading/writing to a table.
+* You can send over the number of item limit to batchWrite or batchGet
+
+```
+const myItem = await aws().dyn.getItem<IMyItem>({
+    TableName: 'whatever',
+    Keys: {...},
+    // standard aws.DynamoDB.GetItemInput
+})
+```
+
+* getItem => T
+* updateItem => ?T
+* queryTable => {next: any, items: T[]}
+* scanTable => {next: any, items: T[]}
+* batchGet => T[]
+    * limited to 1 table
+* batchWrite => void
+    * limited to 1 table
+
 
 ## Firehose
 

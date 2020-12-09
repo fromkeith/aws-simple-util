@@ -13,4 +13,5 @@ export declare class DynamoDB {
     queryTable<T>(queryInput: aws.DynamoDB.QueryInput, next?: any, skipPreThrottle?: boolean): Promise<IQueryResult<T>>;
     scanTable<T>(queryInput: aws.DynamoDB.ScanInput, next?: any): Promise<IQueryResult<T>>;
     batchGet<T>(batchInput: aws.DynamoDB.BatchGetItemInput, skipPreThrottle?: boolean): Promise<T[]>;
+    batchWrite(batchInput: aws.DynamoDB.BatchWriteItemInput, skipPreThrottle?: boolean): Promise<void>;
 }

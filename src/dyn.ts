@@ -238,4 +238,57 @@ export class DynamoDB {
             return out;
         });
     }
+
+    public async batchWrite(batchInput: aws.DynamoDB.BatchWriteItemInput, skipPreThrottle: boolean = false): Promise<void> {
+        const tableNames = Object.keys(batchInput.RequestItems);
+        if (tableNames.length !== 1) {
+            throw new Error('Unsupported # of tables - dyn.ts');
+        }
+        const numItems = batchInput.RequestItems[tableNames[0]].length;
+        if (numItems > 25) {
+            const copy: aws.DynamoDB.BatchWriteItemInput = JSON.parse(JSON.stringify(batchInput));
+            delete copy.RequestItems[tableNames[0]];
+            for (let i = 0; i < batchInput.RequestItems[tableNames[0]].length; i+=25) {
+                copy.RequestItems[tableNames[0]] = batchInput.RequestItems[tableNames[0]].slice(i, i + 25);
+                await this.batchWrite(copy, skipPreThrottle);
+            }
+            return;
+        }
+        if (numItems === 0) {
+            return Promise.resolve(); // no keys!
+        }
+        let estimatedConsumption = numItems / 2;
+        if (skipPreThrottle) {
+            estimatedConsumption = 0;
+        }
+        const limit = this.getRateLimiter(tableNames[0], 'write');
+        return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
+            this.dyn.batchWriteItem(Object.assign({
+                ReturnConsumedCapacity: 'TOTAL',
+            }, batchInput), (err, data) => {
+                if (err) {
+                    console.log('batchWrite failed');
+                    reject(err);
+                    return;
+                }
+                resolve(data);
+            });
+        })).then(async (data: aws.DynamoDB.BatchWriteItemOutput) => {
+            // we under estimated!
+            const usedCapacity = data.ConsumedCapacity[0].CapacityUnits;
+            if (usedCapacity > estimatedConsumption) {
+                console.log('our consumption estimate was wrong for batchGet.', {estimatedConsumption, usedCapacity, table: tableNames[0]});
+                await limit.removeTokens(usedCapacity - estimatedConsumption);
+            }
+
+            if (data.UnprocessedItems && data.UnprocessedItems[tableNames[0]]) {
+                const copy: aws.DynamoDB.BatchWriteItemInput = JSON.parse(JSON.stringify(batchInput));
+                delete copy.RequestItems[tableNames[0]];
+                copy.RequestItems[tableNames[0]] = data.UnprocessedItems[tableNames[0]];
+                await this.batchWrite(copy, skipPreThrottle);
+                return;
+            }
+            return;
+        });
+    }
 }
