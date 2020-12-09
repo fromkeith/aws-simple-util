@@ -36,4 +36,8 @@ export {
     ISqsMessage,
 } from './sqs';
 
+export {
+    IQueryResult,
+} from './dyn';
+
 export * from './sleep';
