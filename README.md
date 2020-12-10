@@ -40,6 +40,8 @@ const myItem = await aws().dyn.getItem<IMyItem>({
 })
 ```
 
+### Methods:
+
 * getItem => T
 * updateItem => ?T
 * queryTable => {next: any, items: T[]}
@@ -64,6 +66,18 @@ const myItem = await aws().dyn.getItem<IMyItem>({
 
 * Auto splits batch delete/enqueue calls.
 * Adds helper methods based on SSM to pull (`ReceiveTaskQueue`) and push (`SendTaskQueue`) to expected queues.
+
+### Methods:
+
+* getMessage<T>(config) => ISqsMessage<T>
+* getMessageRaw(config) => ISqsMessage<string>
+* deleteMessage<T>(config, msg: ISqsMessage<T>) => void
+* batchGetMessages<T>(config) => ISqsMessage<T>[]
+* batchDeleteMessages<T>(config, msgs: ISqsMessage<T>[]) => void
+* sendMessage<T>(config, msg: T) => void
+* batchSendMessageToRaw(queueUrl: string, entries: AWS.SQS.SendMessageBatchRequestEntryList[]) => void
+* batchSendMessageTo<T>(queueUrl: string, msgs: T[]) => void
+* batchSendMessage<T>(config, msgs: T[]) => void
 
 ## SSM
 

@@ -160,14 +160,15 @@ export class Sqs {
     }
 
 
-    public batchSendMessageTo<T>(queueUrl: string, msgs: T[]): Promise<void> {
-        if (msgs.length === 0) {
+    public batchSendMessageToRaw(queueUrl: string, entries: aws.SQS.SendMessageBatchRequestEntryList): Promise<void> {
+
+        if (entries.length === 0) {
             return Promise.resolve();
         }
-        if (msgs.length > 10) {
+        if (entries.length > 10) {
             const wait = new Array<Promise<void>>();
-            for (let i = 0; i < msgs.length; i+=10) {
-                wait.push(this.batchSendMessageTo(queueUrl, msgs.slice(i, i + 10)));
+            for (let i = 0; i < entries.length; i+=10) {
+                wait.push(this.batchSendMessageToRaw(queueUrl, entries.slice(i, i + 10)));
             }
             return Promise.all(wait).then(() => {
                 return; //void
@@ -176,12 +177,7 @@ export class Sqs {
         return new Promise((resolve, reject) => {
             this.sqs.sendMessageBatch({
                 QueueUrl: queueUrl,
-                Entries: msgs.map((m, i) => {
-                    return {
-                        Id: String(i),
-                        MessageBody: JSON.stringify(m),
-                    };
-                }),
+                Entries: entries,
             }, (err, resp) => {
                 if (err) {
                     reject(err);
@@ -192,6 +188,16 @@ export class Sqs {
         }).then((resp: aws.SQS.SendMessageBatchResult) => {
             return; // void
         });
+    }
+
+
+    public batchSendMessageTo<T>(queueUrl: string, msgs: T[]): Promise<void> {
+        return this.batchSendMessageToRaw(queueUrl, msgs.map((m, i) => {
+            return {
+                Id: String(i),
+                MessageBody: JSON.stringify(m),
+            };
+        }));
     }
     public batchSendMessage<T>(config: Map<string, string>, msgs: T[]): Promise<void> {
         return this.batchSendMessageTo(config.get('SendTaskQueue'), msgs);
