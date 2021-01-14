@@ -3,10 +3,15 @@ export interface IQueryResult<T> {
     next: any;
     items: T[];
 }
+export declare enum CACHE_ACTION {
+    READ = "read",
+    WRITE = "write"
+}
 export declare class DynamoDB {
     private dyn;
     private rateLimiting;
     constructor(region: string);
+    setRateLimit(tableName: string, action: CACHE_ACTION, limit: number): void;
     private getRateLimiter;
     updateItem<T>(updateInput: aws.DynamoDB.UpdateItemInput, skipPreThrottle?: boolean): Promise<T>;
     getItem<T>(getInput: aws.DynamoDB.GetItemInput, skipPreThrottle?: boolean): Promise<T>;

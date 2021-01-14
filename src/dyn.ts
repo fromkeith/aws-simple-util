@@ -6,6 +6,10 @@ export interface IQueryResult<T> {
     items: T[];
 }
 
+export enum CACHE_ACTION {
+    READ = 'read',
+    WRITE = 'write',
+}
 
 export class DynamoDB {
     private dyn: aws.DynamoDB;
@@ -20,10 +24,15 @@ export class DynamoDB {
         this.dyn = new aws.DynamoDB({region});
     }
 
-    private getRateLimiter(tableName: string, action: string): PtRateLimter {
+    public setRateLimit(tableName: string, action: CACHE_ACTION, limit: number) {
+        const key = `${tableName}-${action}`;
+        this.rateLimiting.set(key, new PtRateLimter(limit, 'second'));
+    }
+
+    private getRateLimiter(tableName: string, action: CACHE_ACTION): PtRateLimter {
         const key = `${tableName}-${action}`;
         if (!this.rateLimiting.has(key)) {
-            this.rateLimiting.set(key, new PtRateLimter(20, 'second'));
+            this.setRateLimit(tableName, action, 20);
             // so we are say 20 consistent reads of 4KB per second.
         }
         return this.rateLimiting.get(key);
@@ -34,7 +43,7 @@ export class DynamoDB {
         if (skipPreThrottle) {
             estimatedConsumption = 0;
         }
-        const limit = this.getRateLimiter(updateInput.TableName, 'write')
+        const limit = this.getRateLimiter(updateInput.TableName, CACHE_ACTION.WRITE)
         return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
             this.dyn.updateItem(Object.assign({
                 ReturnConsumedCapacity: 'TOTAL',
@@ -67,7 +76,7 @@ export class DynamoDB {
         if (skipPreThrottle) {
             estimatedConsumption = 0;
         }
-        const limit = this.getRateLimiter(getInput.TableName, 'read')
+        const limit = this.getRateLimiter(getInput.TableName, CACHE_ACTION.READ)
         return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
             this.dyn.getItem(Object.assign({
                 ReturnConsumedCapacity: 'TOTAL',
@@ -100,7 +109,7 @@ export class DynamoDB {
         if (skipPreThrottle) {
             estimatedConsumption = 0;
         }
-        const limit = this.getRateLimiter(queryInput.TableName, 'read')
+        const limit = this.getRateLimiter(queryInput.TableName, CACHE_ACTION.READ)
         return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
             this.dyn.query(Object.assign({
                 ConsistentRead: false,
@@ -142,7 +151,7 @@ export class DynamoDB {
         if (queryInput.Limit) {
             estimatedConsumption = queryInput.Limit / 2;
         }
-        const limit = this.getRateLimiter(queryInput.TableName, 'read')
+        const limit = this.getRateLimiter(queryInput.TableName, CACHE_ACTION.READ)
         return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
             this.dyn.scan(Object.assign({
                 ConsistentRead: false,
@@ -202,7 +211,7 @@ export class DynamoDB {
         if (skipPreThrottle) {
             estimatedConsumption = 0;
         }
-        const limit = this.getRateLimiter(tableNames[0], 'read');
+        const limit = this.getRateLimiter(tableNames[0], CACHE_ACTION.READ);
         return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
             this.dyn.batchGetItem(Object.assign({
                 ReturnConsumedCapacity: 'TOTAL',
@@ -261,7 +270,7 @@ export class DynamoDB {
         if (skipPreThrottle) {
             estimatedConsumption = 0;
         }
-        const limit = this.getRateLimiter(tableNames[0], 'write');
+        const limit = this.getRateLimiter(tableNames[0], CACHE_ACTION.WRITE);
         return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
             this.dyn.batchWriteItem(Object.assign({
                 ReturnConsumedCapacity: 'TOTAL',
