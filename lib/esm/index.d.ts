@@ -12,5 +12,5 @@ interface IRegionedServices {
 }
 export declare function aws(region?: string): IRegionedServices;
 export { ISqsMessage, } from './sqs';
-export { IQueryResult, } from './dyn';
+export { IQueryResult, CACHE_ACTION, } from './dyn';
 export * from './sleep';

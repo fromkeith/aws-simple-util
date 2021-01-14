@@ -38,6 +38,7 @@ export {
 
 export {
     IQueryResult,
+    CACHE_ACTION,
 } from './dyn';
 
 export * from './sleep';
