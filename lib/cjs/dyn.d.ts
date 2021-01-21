@@ -1,4 +1,5 @@
 import * as aws from 'aws-sdk';
+import { IServiceOptions } from './options';
 export interface IQueryResult<T> {
     next: any;
     items: T[];
@@ -10,7 +11,7 @@ export declare enum CACHE_ACTION {
 export declare class DynamoDB {
     private dyn;
     private rateLimiting;
-    constructor(region: string);
+    constructor(opt: IServiceOptions);
     setRateLimit(tableName: string, action: CACHE_ACTION, limit: number): void;
     private getRateLimiter;
     updateItem<T>(updateInput: aws.DynamoDB.UpdateItemInput, skipPreThrottle?: boolean): Promise<T>;

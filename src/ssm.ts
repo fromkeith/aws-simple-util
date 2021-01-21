@@ -1,10 +1,14 @@
 import * as aws from 'aws-sdk';
+import {IServiceOptions, SERVICE_NAME} from './options';
 
 
 export class Ssm {
     private ssm: aws.SSM;
-    constructor(region: string) {
-        this.ssm = new aws.SSM({region});
+    constructor(opt: IServiceOptions) {
+        this.ssm = new aws.SSM({
+            region: opt.region,
+            endpoint: opt.endpoint(SERVICE_NAME.SSM, opt.id),
+        });
     }
 
     public getConfig(prefix?: string): Promise<Map<string, string>> {

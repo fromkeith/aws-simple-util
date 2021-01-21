@@ -1,5 +1,6 @@
 import {PtRateLimter} from './ratelimit';
 import * as aws from 'aws-sdk';
+import {IServiceOptions, SERVICE_NAME} from './options';
 
 export interface IQueryResult<T> {
     next: any;
@@ -20,8 +21,11 @@ export class DynamoDB {
     // Item sizes for reads are rounded up to the next 4 KB multiple. For example, reading a 3,500-byte item consumes the same throughput as reading a 4 KB item.
     private rateLimiting = new Map<string, PtRateLimter>();
 
-    constructor(region: string) {
-        this.dyn = new aws.DynamoDB({region});
+    constructor(opt: IServiceOptions) {
+        this.dyn = new aws.DynamoDB({
+            region: opt.region,
+            endpoint: opt.endpoint(SERVICE_NAME.DYN, opt.id),
+        });
     }
 
     public setRateLimit(tableName: string, action: CACHE_ACTION, limit: number) {

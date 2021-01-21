@@ -1,12 +1,16 @@
 import * as aws from 'aws-sdk';
 import {sleep} from './sleep';
+import {IServiceOptions, SERVICE_NAME} from './options';
 
 
 export class Firehose {
     private firehose: aws.Firehose;
 
-    constructor(region: string) {
-        this.firehose = new aws.Firehose({region});
+    constructor(opt: IServiceOptions) {
+        this.firehose = new aws.Firehose({
+            region: opt.region,
+            endpoint: opt.endpoint(SERVICE_NAME.FIREHOSE, opt.id),
+        });
     }
 
     public pushToFirehose(streamName: string, records: any[]): Promise<void> {

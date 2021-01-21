@@ -1,4 +1,5 @@
 import * as aws from 'aws-sdk';
+import {IServiceOptions, SERVICE_NAME} from './options';
 
 
 export interface ISqsMessage<T> {
@@ -9,8 +10,11 @@ export interface ISqsMessage<T> {
 export class Sqs {
 
     private sqs: aws.SQS;
-    constructor(region: string) {
-        this.sqs = new aws.SQS({region});
+    constructor(opt: IServiceOptions) {
+        this.sqs = new aws.SQS({
+            region: opt.region,
+            endpoint: opt.endpoint(SERVICE_NAME.SQS, opt.id),
+        });
     }
 
     public getMessage<T>(config: Map<string, string>): Promise<ISqsMessage<T>> {

@@ -1,12 +1,16 @@
 import * as aws from 'aws-sdk';
+import {IServiceOptions, SERVICE_NAME} from './options';
 
 
 
 export class S3 {
 
     private s3: aws.S3;
-    constructor(region: string) {
-        this.s3 = new aws.S3({region});
+    constructor(opt: IServiceOptions) {
+        this.s3 = new aws.S3({
+            region: opt.region,
+            endpoint: opt.endpoint(SERVICE_NAME.S3, opt.id),
+        });
     }
 
 

@@ -3,33 +3,75 @@ import * as sqs from './sqs';
 import * as dyn from './dyn';
 import * as firehose from './firehose';
 import * as s3 from './s3';
+import {IServiceOptions} from './options';
 
-interface IRegionedServices {
-    ssm: ssm.Ssm;
-    sqs: sqs.Sqs;
-    dyn: dyn.DynamoDB;
-    firehose: firehose.Firehose;
-    s3: s3.S3;
+
+class RegionedServices {
+    _ssm: ssm.Ssm;
+    _sqs: sqs.Sqs;
+    _dyn: dyn.DynamoDB;
+    _firehose: firehose.Firehose;
+    _s3: s3.S3;
+
+    constructor(private opt: IServiceOptions) {
+        if (!this.opt.endpoint) {
+            this.opt.endpoint = () => undefined;
+        }
+    }
+
+    get ssm(): ssm.Ssm {
+        if (!this._ssm) {
+            this._ssm = new ssm.Ssm(this.opt);
+        }
+        return this._ssm;
+    }
+    get sqs(): sqs.Sqs {
+        if (!this._sqs) {
+            this._sqs = new sqs.Sqs(this.opt);
+        }
+        return this._sqs;
+    }
+    get dyn(): dyn.DynamoDB {
+        if (!this._dyn) {
+            this._dyn = new dyn.DynamoDB(this.opt);
+        }
+        return this._dyn;
+    }
+    get firehose(): firehose.Firehose {
+        if (!this._firehose) {
+            this._firehose = new firehose.Firehose(this.opt);
+        }
+        return this._firehose;
+    }
+    get s3(): s3.S3 {
+        if (!this._s3) {
+            this._s3 = new s3.S3(this.opt);
+        }
+        return this._s3;
+    }
 }
 
 
-const regions = new Map<string, IRegionedServices>();
+
+const regions = new Map<string, RegionedServices>();
 
 
-export function aws(region?: string): IRegionedServices {
-    if (!region) {
-        region = process.env.AWS_REGION || 'us-west-2';
+export function aws(opt?: IServiceOptions | string): RegionedServices {
+    if (!opt) {
+        opt = {
+            region: process.env.AWS_REGION || 'us-west-2',
+            id: '--reserved--default--',
+        };
+    } else if (typeof opt === 'string') {
+        opt = {
+            region: opt,
+            id: opt,
+        };
     }
-    if (!regions.has(region)) {
-        regions.set(region, {
-            ssm: new ssm.Ssm(region),
-            sqs: new sqs.Sqs(region),
-            dyn: new dyn.DynamoDB(region),
-            firehose: new firehose.Firehose(region),
-            s3: new s3.S3(region),
-        });
+    if (!regions.has(opt.id)) {
+        regions.set(opt.id, new RegionedServices(opt));
     }
-    return regions.get(region);
+    return regions.get(opt.id);
 }
 
 export {
@@ -40,5 +82,7 @@ export {
     IQueryResult,
     CACHE_ACTION,
 } from './dyn';
+
+export {IServiceOptions} from './options';
 
 export * from './sleep';

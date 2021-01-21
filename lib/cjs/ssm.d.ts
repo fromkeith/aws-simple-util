@@ -1,5 +1,6 @@
+import { IServiceOptions } from './options';
 export declare class Ssm {
     private ssm;
-    constructor(region: string);
+    constructor(opt: IServiceOptions);
     getConfig(prefix?: string): Promise<Map<string, string>>;
 }
