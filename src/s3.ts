@@ -13,6 +13,17 @@ export class S3 {
         });
     }
 
+    public createMultipartUpload(params: aws.S3.CreateMultipartUploadRequest): Promise<aws.S3.CreateMultipartUploadOutput> {
+        return this.s3.createMultipartUpload(params).promise();
+    }
+
+    public completeMultipartUpload(params: aws.S3.CompleteMultipartUploadRequest): Promise<aws.S3.CompleteMultipartUploadOutput> {
+        return this.s3.completeMultipartUpload(params).promise();
+    }
+    public uploadPart(params: aws.S3.UploadPartRequest): Promise<aws.S3.UploadPartOutput> {
+        return this.s3.uploadPart(params).promise();
+    }
+
 
     public headObject(params: aws.S3.HeadObjectRequest): Promise<aws.S3.HeadObjectOutput> {
         return new Promise((resolve, reject) => {
