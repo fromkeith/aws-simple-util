@@ -83,6 +83,6 @@ export {
     CACHE_ACTION,
 } from './dyn';
 
-export {IServiceOptions} from './options';
+export {IServiceOptions, SERVICE_NAME} from './options';
 
 export * from './sleep';

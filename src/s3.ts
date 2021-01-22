@@ -26,38 +26,16 @@ export class S3 {
 
 
     public headObject(params: aws.S3.HeadObjectRequest): Promise<aws.S3.HeadObjectOutput> {
-        return new Promise((resolve, reject) => {
-            this.s3.headObject(params, (err, resp) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(resp);
-            });
-        });
+        return this.s3.headObject(params).promise();
+    }
+    public putObject(params: aws.S3.HeadObjectRequest): Promise<aws.S3.HeadObjectOutput> {
+        return this.s3.putObject(params).promise();
     }
     public getObject(params: aws.S3.GetObjectRequest): Promise<aws.S3.GetObjectOutput> {
-        return new Promise((resolve, reject) => {
-            this.s3.getObject(params, (err, resp) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(resp);
-            });
-        });
+        return this.s3.getObject(params).promise();
     }
-
     public listBucket(params: aws.S3.ListObjectsV2Request): Promise<aws.S3.ListObjectsV2Output> {
-        return new Promise((resolve, reject) => {
-            this.s3.listObjectsV2(params, (err, resp) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(resp);
-            });
-        });
+        return this.s3.listObjectsV2(params).promise();
     }
 
     public async deleteObjects(params: aws.S3.DeleteObjectsRequest): Promise<aws.S3.DeleteObjectsOutput> {

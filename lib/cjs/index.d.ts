@@ -21,5 +21,5 @@ declare class RegionedServices {
 export declare function aws(opt?: IServiceOptions | string): RegionedServices;
 export { ISqsMessage, } from './sqs';
 export { IQueryResult, CACHE_ACTION, } from './dyn';
-export { IServiceOptions } from './options';
+export { IServiceOptions, SERVICE_NAME } from './options';
 export * from './sleep';
