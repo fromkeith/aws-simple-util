@@ -28,7 +28,7 @@ export class S3 {
     public headObject(params: aws.S3.HeadObjectRequest): Promise<aws.S3.HeadObjectOutput> {
         return this.s3.headObject(params).promise();
     }
-    public putObject(params: aws.S3.HeadObjectRequest): Promise<aws.S3.HeadObjectOutput> {
+    public putObject(params: aws.S3.PutObjectRequest): Promise<aws.S3.PutObjectOutput> {
         return this.s3.putObject(params).promise();
     }
     public getObject(params: aws.S3.GetObjectRequest): Promise<aws.S3.GetObjectOutput> {
