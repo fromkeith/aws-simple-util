@@ -15,6 +15,7 @@ export declare class DynamoDB {
     setRateLimit(tableName: string, action: CACHE_ACTION, limit: number): void;
     private getRateLimiter;
     updateItem<T>(updateInput: aws.DynamoDB.UpdateItemInput, skipPreThrottle?: boolean): Promise<T>;
+    putItem<T>(putItemInput: aws.DynamoDB.PutItemInput, skipPreThrottle?: boolean): Promise<T>;
     getItem<T>(getInput: aws.DynamoDB.GetItemInput, skipPreThrottle?: boolean): Promise<T>;
     queryTable<T>(queryInput: aws.DynamoDB.QueryInput, next?: any, skipPreThrottle?: boolean): Promise<IQueryResult<T>>;
     scanTable<T>(queryInput: aws.DynamoDB.ScanInput, next?: any): Promise<IQueryResult<T>>;

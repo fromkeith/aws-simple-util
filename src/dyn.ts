@@ -72,6 +72,36 @@ export class DynamoDB {
         });
     }
 
+    public putItem<T>(putItemInput: aws.DynamoDB.PutItemInput, skipPreThrottle: boolean = false): Promise<T> {
+        let estimatedConsumption = 1;
+        if (skipPreThrottle) {
+            estimatedConsumption = 0;
+        }
+        const limit = this.getRateLimiter(putItemInput.TableName, CACHE_ACTION.WRITE)
+        return limit.removeTokens(estimatedConsumption).then(() => new Promise((resolve, reject) => {
+            this.dyn.putItem(Object.assign({
+                ReturnConsumedCapacity: 'TOTAL',
+            }, putItemInput), (err, data) => {
+                if (err) {
+                    console.log('putItem failed', putItemInput.TableName);
+                    reject(err);
+                    return;
+                }
+                resolve(data);
+            });
+        })).then(async (data: aws.DynamoDB.PutItemOutput) => {
+            const usedCapacity = data.ConsumedCapacity.CapacityUnits;
+            if (usedCapacity > estimatedConsumption) {
+                console.log('our consumption estimate was wrong for putItem.', {estimatedConsumption, usedCapacity, table: putItemInput.TableName});
+                await limit.removeTokens(usedCapacity - estimatedConsumption);
+            }
+            if (!data.Attributes) {
+                return null;
+            }
+            return aws.DynamoDB.Converter.unmarshall(data.Attributes) as T;
+        });
+    }
+
     public getItem<T>(getInput: aws.DynamoDB.GetItemInput, skipPreThrottle: boolean = false): Promise<T> {
         let estimatedConsumption = 1;
         if (getInput.ConsistentRead) {
