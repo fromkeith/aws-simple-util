@@ -11,7 +11,7 @@ export class Ssm {
         });
     }
 
-    public getConfig(prefix?: string): Promise<Map<string, string>> {
+    public async getConfig(prefix?: string): Promise<Map<string, string>> {
         if (!prefix) {
             prefix = process.env.SSM_PREFIX;
         }
@@ -19,25 +19,24 @@ export class Ssm {
         if (prefix.lastIndexOf('/') !== prefix.length - 1) {
             prefix += '/';
         }
-        return new Promise((resolve, reject) => {
-            this.ssm.getParametersByPath({
+        const config = new Map<string, string>();
+        let next: string;
+        for (;;) {
+            const resp = await this.ssm.getParametersByPath({
                 Path: prefix,
                 Recursive: true,
                 WithDecryption: true,
-            }, (err, resp: aws.SSM.GetParametersByPathResult) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(resp);
-            });
-        }).then((resp: aws.SSM.GetParametersByPathResult) => {
-            const config = new Map<string, string>();
+                NextToken: next,
+            }).promise();
             for (const p of resp.Parameters) {
                 config.set(p.Name.substr(prefix.length), p.Value);
             }
-            return config;
-        });
+            if (!resp.NextToken) {
+                break;
+            }
+            next = resp.NextToken;
+        }
+        return config;
     }
 
 }
