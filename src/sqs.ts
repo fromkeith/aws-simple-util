@@ -18,46 +18,36 @@ export class Sqs {
     }
 
     public getMessage<T>(config: Map<string, string>): Promise<ISqsMessage<T>> {
-        return new Promise((resolve, reject) => {
-            this.sqs.receiveMessage({
-                QueueUrl: config.get('ReceiveTaskQueue'),
-                MaxNumberOfMessages: 1,
-                WaitTimeSeconds: 20,
-            } as aws.SQS.ReceiveMessageRequest, (err, resp) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(resp);
-            });
-        }).then((resp: aws.SQS.ReceiveMessageResult) => {
-            if (!resp || !resp.Messages || resp.Messages.length === 0) {
-                return null;
-            }
-            return {
-                msg: JSON.parse(resp.Messages[0].Body),
-                handle: resp.Messages[0].ReceiptHandle,
-            };
+        return this.getMessageFrom<T>({
+            QueueUrl: config.get('ReceiveTaskQueue'),
+            MaxNumberOfMessages: 1,
+            WaitTimeSeconds: 20,
         });
-        return this.getMessageRaw(config)
+    }
+    public getMessageFrom<T>(params: AWS.SQS.ReceiveMessageRequest): Promise<ISqsMessage<T>> {
+        return this.getMessageRawFrom(params)
             .then((result) => {
                 if (result === null) {
                     return null;
                 }
                 return {
-                    msg: JSON.parse(result.msg),
+                    msg: JSON.parse(result.msg) as T,
                     handle: result.handle,
                 };
             });
     }
 
     public getMessageRaw(config: Map<string, string>): Promise<ISqsMessage<string>> {
+        return this.getMessageRawFrom({
+            QueueUrl: config.get('ReceiveTaskQueue'),
+            MaxNumberOfMessages: 1,
+            WaitTimeSeconds: 20,
+        });
+    }
+
+    public getMessageRawFrom(params: AWS.SQS.ReceiveMessageRequest): Promise<ISqsMessage<string>> {
         return new Promise((resolve, reject) => {
-            this.sqs.receiveMessage({
-                QueueUrl: config.get('ReceiveTaskQueue'),
-                MaxNumberOfMessages: 1,
-                WaitTimeSeconds: 20,
-            } as aws.SQS.ReceiveMessageRequest, (err, resp) => {
+            this.sqs.receiveMessage(params, (err, resp) => {
                 if (err) {
                     reject(err);
                     return;

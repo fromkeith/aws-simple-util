@@ -8,7 +8,9 @@ export declare class Sqs {
     private sqs;
     constructor(opt: IServiceOptions);
     getMessage<T>(config: Map<string, string>): Promise<ISqsMessage<T>>;
+    getMessageFrom<T>(params: AWS.SQS.ReceiveMessageRequest): Promise<ISqsMessage<T>>;
     getMessageRaw(config: Map<string, string>): Promise<ISqsMessage<string>>;
+    getMessageRawFrom(params: AWS.SQS.ReceiveMessageRequest): Promise<ISqsMessage<string>>;
     deleteMessage<T>(config: Map<string, string>, msg: ISqsMessage<T>): Promise<void>;
     batchGetMessages<T>(config: Map<string, string>): Promise<ISqsMessage<T>[]>;
     batchDeleteMessages<T>(config: Map<string, string>, msgs: ISqsMessage<T>[]): Promise<void>;
