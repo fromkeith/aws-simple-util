@@ -66,10 +66,14 @@ export class Sqs {
     }
 
     public deleteMessage<T>(config: Map<string, string>, msg: ISqsMessage<T>): Promise<void> {
+        return this.deleteMessageFrom<T>(config.get('ReceiveTaskQueue'), msg);
+    }
+
+    public deleteMessageFrom<T>(queueUrl: string, msg: ISqsMessage<T>): Promise<void> {
         return new Promise<void>((resolve) => {
             this.sqs.deleteMessage({
                 ReceiptHandle: msg.handle,
-                QueueUrl: config.get('ReceiveTaskQueue'),
+                QueueUrl: queueUrl,
             }, (err) => {
                 if (err) {
                     console.log('ERROR deleting message!', err);
