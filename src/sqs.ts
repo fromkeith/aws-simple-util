@@ -84,12 +84,15 @@ export class Sqs {
     }
 
     public batchGetMessages<T>(config: Map<string, string>): Promise<ISqsMessage<T>[]> {
+        return this.batchGetMessagesFrom({
+            QueueUrl: config.get('ReceiveTaskQueue'),
+            MaxNumberOfMessages: 10,
+            WaitTimeSeconds: 20,
+        });
+    }
+    public batchGetMessagesFrom<T>(params: aws.SQS.ReceiveMessageRequest): Promise<ISqsMessage<T>[]> {
         return new Promise((resolve, reject) => {
-            this.sqs.receiveMessage({
-                QueueUrl: config.get('ReceiveTaskQueue'),
-                MaxNumberOfMessages: 10,
-                WaitTimeSeconds: 20,
-            } as aws.SQS.ReceiveMessageRequest, (err, resp) => {
+            this.sqs.receiveMessage(params, (err, resp) => {
                 if (err) {
                     reject(err);
                     return;
