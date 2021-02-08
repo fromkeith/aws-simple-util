@@ -17,6 +17,9 @@ class RegionedServices {
         if (!this.opt.endpoint) {
             this.opt.endpoint = () => undefined;
         }
+        if (!this.opt.credentials) {
+            this.opt.credentials = () => undefined;
+        }
     }
 
     get ssm(): ssm.Ssm {
