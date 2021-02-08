@@ -10,6 +10,7 @@ export class Firehose {
         this.firehose = new aws.Firehose({
             region: opt.region,
             endpoint: opt.endpoint(SERVICE_NAME.FIREHOSE, opt.id),
+            credentials: opt.credentials(SERVICE_NAME.FIREHOSE, opt.id),
         });
     }
 

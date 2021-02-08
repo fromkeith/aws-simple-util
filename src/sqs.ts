@@ -14,6 +14,7 @@ export class Sqs {
         this.sqs = new aws.SQS({
             region: opt.region,
             endpoint: opt.endpoint(SERVICE_NAME.SQS, opt.id),
+            credentials: opt.credentials(SERVICE_NAME.SQS, opt.id),
         });
     }
 

@@ -8,6 +8,7 @@ export class Ssm {
         this.ssm = new aws.SSM({
             region: opt.region,
             endpoint: opt.endpoint(SERVICE_NAME.SSM, opt.id),
+            credentials: opt.credentials(SERVICE_NAME.SSM, opt.id),
         });
     }
 

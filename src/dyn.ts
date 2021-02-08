@@ -25,6 +25,7 @@ export class DynamoDB {
         this.dyn = new aws.DynamoDB({
             region: opt.region,
             endpoint: opt.endpoint(SERVICE_NAME.DYN, opt.id),
+            credentials: opt.credentials(SERVICE_NAME.DYN, opt.id),
         });
     }
 
