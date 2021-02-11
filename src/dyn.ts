@@ -1,6 +1,7 @@
 import {PtRateLimter} from './ratelimit';
 import * as aws from 'aws-sdk';
 import {IServiceOptions, SERVICE_NAME} from './options';
+import {log} from './logger';
 
 export interface IQueryResult<T> {
     next: any;
@@ -54,7 +55,7 @@ export class DynamoDB {
                 ReturnConsumedCapacity: 'TOTAL',
             }, updateInput), (err, data) => {
                 if (err) {
-                    console.log('updateItem failed', updateInput.TableName);
+                    log('updateItem failed', updateInput.TableName);
                     reject(err);
                     return;
                 }
@@ -63,7 +64,7 @@ export class DynamoDB {
         })).then(async (data: aws.DynamoDB.UpdateItemOutput) => {
             const usedCapacity = data.ConsumedCapacity.CapacityUnits;
             if (usedCapacity > estimatedConsumption) {
-                console.log('our consumption estimate was wrong for updateItem.', {estimatedConsumption, usedCapacity, table: updateInput.TableName});
+                log('our consumption estimate was wrong for updateItem.', {estimatedConsumption, usedCapacity, table: updateInput.TableName});
                 await limit.removeTokens(usedCapacity - estimatedConsumption);
             }
             if (!data.Attributes) {
@@ -84,7 +85,7 @@ export class DynamoDB {
                 ReturnConsumedCapacity: 'TOTAL',
             }, putItemInput), (err, data) => {
                 if (err) {
-                    console.log('putItem failed', putItemInput.TableName);
+                    log('putItem failed', putItemInput.TableName);
                     reject(err);
                     return;
                 }
@@ -93,7 +94,7 @@ export class DynamoDB {
         })).then(async (data: aws.DynamoDB.PutItemOutput) => {
             const usedCapacity = data.ConsumedCapacity.CapacityUnits;
             if (usedCapacity > estimatedConsumption) {
-                console.log('our consumption estimate was wrong for putItem.', {estimatedConsumption, usedCapacity, table: putItemInput.TableName});
+                log('our consumption estimate was wrong for putItem.', {estimatedConsumption, usedCapacity, table: putItemInput.TableName});
                 await limit.removeTokens(usedCapacity - estimatedConsumption);
             }
             if (!data.Attributes) {
@@ -117,7 +118,7 @@ export class DynamoDB {
                 ReturnConsumedCapacity: 'TOTAL',
             }, getInput), (err, data) => {
                 if (err) {
-                    console.log('getItem failed', getInput.TableName);
+                    log('getItem failed', getInput.TableName);
                     reject(err);
                     return;
                 }
@@ -126,7 +127,7 @@ export class DynamoDB {
         })).then(async (data: aws.DynamoDB.GetItemOutput) => {
             const usedCapacity = data.ConsumedCapacity.CapacityUnits;
             if (usedCapacity > estimatedConsumption) {
-                console.log('our consumption estimate was wrong for getItem.', {estimatedConsumption, usedCapacity, table: getInput.TableName});
+                log('our consumption estimate was wrong for getItem.', {estimatedConsumption, usedCapacity, table: getInput.TableName});
                 await limit.removeTokens(usedCapacity - estimatedConsumption);
             }
             if (!data.Item) {
@@ -152,7 +153,7 @@ export class DynamoDB {
                 ReturnConsumedCapacity: 'TOTAL',
             }, queryInput), (err, data) => {
                 if (err) {
-                    console.log('queryTable failed', queryInput.TableName);
+                    log('queryTable failed', queryInput.TableName);
                     reject(err);
                     return;
                 }
@@ -162,7 +163,7 @@ export class DynamoDB {
             // we under estimated!
             const usedCapacity = data.ConsumedCapacity.CapacityUnits;
             if (usedCapacity > estimatedConsumption) {
-                console.log('our consumption estimate was wrong for queryTable.', {estimatedConsumption, usedCapacity, table: queryInput.TableName});
+                log('our consumption estimate was wrong for queryTable.', {estimatedConsumption, usedCapacity, table: queryInput.TableName});
                 await limit.removeTokens(usedCapacity - estimatedConsumption);
             }
             if (!data.Items || data.Items.length === 0) {
@@ -194,7 +195,7 @@ export class DynamoDB {
                 ReturnConsumedCapacity: 'TOTAL',
             }, queryInput), (err, data) => {
                 if (err) {
-                    console.log('scanTable failed');
+                    log('scanTable failed', err);
                     reject(err);
                     return;
                 }
@@ -204,7 +205,7 @@ export class DynamoDB {
             // we under estimated!
             const usedCapacity = data.ConsumedCapacity.CapacityUnits;
             if (usedCapacity > estimatedConsumption) {
-                console.log('our consumption estimate was wrong for queryTable.', {estimatedConsumption, usedCapacity, table: queryInput.TableName});
+                log('our consumption estimate was wrong for queryTable.', {estimatedConsumption, usedCapacity, table: queryInput.TableName});
                 await limit.removeTokens(usedCapacity - estimatedConsumption);
             }
             if (!data.Items || data.Items.length === 0) {
@@ -252,7 +253,7 @@ export class DynamoDB {
                 ReturnConsumedCapacity: 'TOTAL',
             }, batchInput), (err, data) => {
                 if (err) {
-                    console.log('batchGet failed');
+                    log('batchGet failed', err);
                     reject(err);
                     return;
                 }
@@ -262,7 +263,7 @@ export class DynamoDB {
             // we under estimated!
             const usedCapacity = data.ConsumedCapacity[0].CapacityUnits;
             if (usedCapacity > estimatedConsumption) {
-                console.log('our consumption estimate was wrong for batchGet.', {estimatedConsumption, usedCapacity, table: tableNames[0]});
+                log('our consumption estimate was wrong for batchGet.', {estimatedConsumption, usedCapacity, table: tableNames[0]});
                 await limit.removeTokens(usedCapacity - estimatedConsumption);
             }
             let out: Array<T> = [];
@@ -311,7 +312,7 @@ export class DynamoDB {
                 ReturnConsumedCapacity: 'TOTAL',
             }, batchInput), (err, data) => {
                 if (err) {
-                    console.log('batchWrite failed');
+                    log('batchWrite failed', err);
                     reject(err);
                     return;
                 }
@@ -321,7 +322,7 @@ export class DynamoDB {
             // we under estimated!
             const usedCapacity = data.ConsumedCapacity[0].CapacityUnits;
             if (usedCapacity > estimatedConsumption) {
-                console.log('our consumption estimate was wrong for batchGet.', {estimatedConsumption, usedCapacity, table: tableNames[0]});
+                log('our consumption estimate was wrong for batchGet.', {estimatedConsumption, usedCapacity, table: tableNames[0]});
                 await limit.removeTokens(usedCapacity - estimatedConsumption);
             }
 

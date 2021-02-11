@@ -1,6 +1,6 @@
 import * as aws from 'aws-sdk';
 import {IServiceOptions, SERVICE_NAME} from './options';
-
+import {log} from './logger';
 
 export interface ISqsMessage<T> {
     handle: string;
@@ -84,7 +84,7 @@ export class Sqs {
                 QueueUrl: queueUrl,
             }, (err) => {
                 if (err) {
-                    console.log('ERROR deleting message!', err);
+                    log('ERROR deleting message!', err);
                 }
                 resolve();
             });
@@ -145,7 +145,7 @@ export class Sqs {
                 QueueUrl: config.get('ReceiveTaskQueue'),
             }, (err) => {
                 if (err) {
-                    console.log('ERROR deleting message!', err);
+                    log('ERROR deleting message!', err);
                 }
                 resolve();
             });

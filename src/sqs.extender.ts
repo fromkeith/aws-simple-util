@@ -2,6 +2,7 @@ import {
     ISqsMessage,
     Sqs,
 } from './sqs';
+import {log} from './logger';
 
 interface IMonitorItem {
     msg: ISqsMessage<any>;
@@ -64,8 +65,13 @@ export class VisibilityExtender {
                 break;
             }
             try {
+                log('extending message visibility', this.monitoring[i].msg);
                 this.sqs.changeMessageVisibility(this.monitoring[i].msg, this.extendBySeconds);
             } catch (ex) {
+                log('failed to extend visibility', {
+                    error: ex,
+                    msg: this.monitoring[i].msg,
+                });
                 // ignore errors
             }
             const extendedTo = Date.now() + this.extendBySeconds * 1000;

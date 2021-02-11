@@ -4,6 +4,7 @@ import {
     RateLimiter,
     RemoveTokensCallback,
 } from 'limiter';
+import {log} from './logger';
 
 interface IRequestItem {
     num: number;
@@ -46,7 +47,7 @@ export class PtRateLimter {
         this.iterateOnRequest();
     }
     private iterateOnRequest() {
-        console.log('iterateOnRequest', this.requests[0].num);
+        log('iterateOnRequest', this.requests[0].num);
         this.curRequest = this.requests[0].num;
         const removed = Math.max(0, Math.min(this.maxUnits, this.curRequest));
         this.base.removeTokens(removed, () => {
