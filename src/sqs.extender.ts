@@ -18,7 +18,7 @@ export class VisibilityExtender {
     constructor(
             private sqs: Sqs,
             private defaultVisibilitySeconds: number,
-            private extendBy: number) {
+            private extendBySeconds: number) {
 
     }
 
@@ -32,7 +32,7 @@ export class VisibilityExtender {
     }
 
     private calcExtendAt(expiresAt: number): number {
-        return expiresAt - Math.min(this.extendBy, 10 * 1000);
+        return expiresAt - Math.min(this.extendBySeconds * 1000, 10 * 1000);
     }
 
     private sort() {
@@ -64,11 +64,11 @@ export class VisibilityExtender {
                 break;
             }
             try {
-                this.sqs.changeMessageVisibility(this.monitoring[i].msg, this.extendBy);
+                this.sqs.changeMessageVisibility(this.monitoring[i].msg, this.extendBySeconds);
             } catch (ex) {
                 // ignore errors
             }
-            const extendedTo = Date.now() + this.extendBy;
+            const extendedTo = Date.now() + this.extendBySeconds * 1000;
             this.monitoring[i].expiresAt = Math.max(this.monitoring[i].expiresAt, extendedTo);
             this.monitoring[i].extendAt = this.calcExtendAt(this.monitoring[i].expiresAt);
         }

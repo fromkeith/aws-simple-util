@@ -2,11 +2,11 @@ import { ISqsMessage, Sqs } from './sqs';
 export declare class VisibilityExtender {
     private sqs;
     private defaultVisibilitySeconds;
-    private extendBy;
+    private extendBySeconds;
     private monitoring;
     private nextTimeoutAtMs;
     private currentTimeout;
-    constructor(sqs: Sqs, defaultVisibilitySeconds: number, extendBy: number);
+    constructor(sqs: Sqs, defaultVisibilitySeconds: number, extendBySeconds: number);
     monitor(msg: ISqsMessage<any>): void;
     private calcExtendAt;
     private sort;
