@@ -4,6 +4,7 @@ import {IServiceOptions, SERVICE_NAME} from './options';
 
 export interface ISqsMessage<T> {
     handle: string;
+    queue: string;
     msg: T;
 }
 
@@ -34,6 +35,7 @@ export class Sqs {
                 return {
                     msg: JSON.parse(result.msg) as T,
                     handle: result.handle,
+                    queue: params.QueueUrl,
                 };
             });
     }
@@ -62,12 +64,17 @@ export class Sqs {
             return {
                 msg: resp.Messages[0].Body,
                 handle: resp.Messages[0].ReceiptHandle,
+                queue: params.QueueUrl,
             };
         });
     }
 
     public deleteMessage<T>(config: Map<string, string>, msg: ISqsMessage<T>): Promise<void> {
         return this.deleteMessageFrom<T>(config.get('ReceiveTaskQueue'), msg);
+    }
+
+    public deleteMessageAlt<T>(msg: ISqsMessage<T>): Promise<void> {
+        return this.deleteMessageFrom<T>(msg.queue, msg);
     }
 
     public deleteMessageFrom<T>(queueUrl: string, msg: ISqsMessage<T>): Promise<void> {
@@ -108,6 +115,7 @@ export class Sqs {
                 return {
                     msg: JSON.parse(a.Body),
                     handle: a.ReceiptHandle,
+                    queue: params.QueueUrl,
                 };
             });
         });
@@ -203,5 +211,16 @@ export class Sqs {
     }
     public batchSendMessage<T>(config: Map<string, string>, msgs: T[]): Promise<void> {
         return this.batchSendMessageTo(config.get('SendTaskQueue'), msgs);
+    }
+
+    public changeMessageVisibility<T>(msg: ISqsMessage<T>, timeoutSecondsFromNow: number): Promise<void> {
+        return this.sqs.changeMessageVisibility({
+            QueueUrl: msg.queue,
+            ReceiptHandle: msg.handle,
+            VisibilityTimeout: timeoutSecondsFromNow,
+        }).promise()
+        .then(() => {
+            // void
+        });
     }
 }
