@@ -24,3 +24,4 @@ export { IQueryResult, CACHE_ACTION, } from './dyn';
 export { IServiceOptions, SERVICE_NAME } from './options';
 export * from './sleep';
 export { VisibilityExtender } from './sqs.extender';
+export { LoggerFunc, setAwsSimpleLogger } from './logger';
