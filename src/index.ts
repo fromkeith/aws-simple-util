@@ -89,3 +89,4 @@ export {
 export {IServiceOptions, SERVICE_NAME} from './options';
 
 export * from './sleep';
+export {VisibilityExtender} from './sqs.extender';
