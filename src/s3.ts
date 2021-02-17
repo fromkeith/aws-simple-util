@@ -11,6 +11,7 @@ export class S3 {
             region: opt.region,
             endpoint: opt.endpoint(SERVICE_NAME.S3, opt.id),
             credentials: opt.credentials(SERVICE_NAME.S3, opt.id),
+            signatureVersion: 'v4',
         });
     }
 
