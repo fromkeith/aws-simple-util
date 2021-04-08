@@ -153,9 +153,13 @@ export class Sqs {
     }
 
     public sendMessage<T>(config: Map<string, string>, message: T): Promise<void> {
+        return this.sendMessageTo(config.get('SendTaskQueue'), message);
+    }
+
+    public sendMessageTo<T>(queueUrl: string, message: T): Promise<void> {
         return new Promise((resolve, reject) => {
             this.sqs.sendMessage({
-                QueueUrl: config.get('SendTaskQueue'),
+                QueueUrl: queueUrl,
                 MessageBody: JSON.stringify(message),
             }, (err, resp) => {
                 if (err) {

@@ -19,6 +19,7 @@ export declare class Sqs {
     batchGetMessagesFrom<T>(params: aws.SQS.ReceiveMessageRequest): Promise<ISqsMessage<T>[]>;
     batchDeleteMessages<T>(config: Map<string, string>, msgs: ISqsMessage<T>[]): Promise<void>;
     sendMessage<T>(config: Map<string, string>, message: T): Promise<void>;
+    sendMessageTo<T>(queueUrl: string, message: T): Promise<void>;
     batchSendMessageToRaw(queueUrl: string, entries: aws.SQS.SendMessageBatchRequestEntryList): Promise<void>;
     batchSendMessageTo<T>(queueUrl: string, msgs: T[]): Promise<void>;
     batchSendMessage<T>(config: Map<string, string>, msgs: T[]): Promise<void>;
