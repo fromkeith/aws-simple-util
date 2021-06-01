@@ -13,7 +13,7 @@ interface IMonitorItem {
 export class VisibilityExtender {
 
     private monitoring: IMonitorItem[] = [];
-    private nextTimeoutAtMs: number;
+    private nextTimeoutAtMs: number = 0;
     private currentTimeout: NodeJS.Timer;
 
     constructor(
@@ -51,9 +51,12 @@ export class VisibilityExtender {
         if (this.nextTimeoutAtMs === 0 || this.monitoring[0].extendAt < this.nextTimeoutAtMs) {
             this.nextTimeoutAtMs = this.monitoring[0].extendAt;
             clearTimeout(this.currentTimeout);
+            log('next extend is at', {
+                at: this.nextTimeoutAtMs,
+            });
             this.currentTimeout = setTimeout(() => {
                 this.extend();
-            }, Date.now() - this.nextTimeoutAtMs);
+            }, this.nextTimeoutAtMs - Date.now());
         }
     }
     private extend() {
@@ -61,7 +64,7 @@ export class VisibilityExtender {
 
         const now = Date.now();
         for (let i = 0; i < this.monitoring.length; i++) {
-            if (this.monitoring[i].extendAt > now) {
+            if (this.monitoring[i].extendAt >= now) {
                 break;
             }
             try {
