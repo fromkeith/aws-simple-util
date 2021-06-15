@@ -3,6 +3,8 @@ import { IServiceOptions } from './options';
 export declare class S3 {
     private s3;
     constructor(opt: IServiceOptions);
+    copyObject(params: aws.S3.CopyObjectRequest): Promise<aws.S3.CopyObjectOutput>;
+    listObjectVersions(params: aws.S3.ListObjectVersionsRequest): Promise<aws.S3.ListObjectVersionsOutput>;
     createMultipartUpload(params: aws.S3.CreateMultipartUploadRequest): Promise<aws.S3.CreateMultipartUploadOutput>;
     completeMultipartUpload(params: aws.S3.CompleteMultipartUploadRequest): Promise<aws.S3.CompleteMultipartUploadOutput>;
     uploadPart(params: aws.S3.UploadPartRequest): Promise<aws.S3.UploadPartOutput>;

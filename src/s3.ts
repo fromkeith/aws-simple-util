@@ -15,6 +15,14 @@ export class S3 {
         });
     }
 
+    public copyObject(params: aws.S3.CopyObjectRequest): Promise<aws.S3.CopyObjectOutput> {
+        return this.s3.copyObject(params).promise();
+    }
+
+    public listObjectVersions(params: aws.S3.ListObjectVersionsRequest): Promise<aws.S3.ListObjectVersionsOutput> {
+        return this.s3.listObjectVersions(params).promise();
+    }
+
     public createMultipartUpload(params: aws.S3.CreateMultipartUploadRequest): Promise<aws.S3.CreateMultipartUploadOutput> {
         return this.s3.createMultipartUpload(params).promise();
     }
