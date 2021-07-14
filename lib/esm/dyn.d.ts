@@ -3,6 +3,7 @@ import { IServiceOptions } from './options';
 export interface IQueryResult<T> {
     next: any;
     items: T[];
+    count: number;
 }
 export declare enum CACHE_ACTION {
     READ = "read",

@@ -6,6 +6,7 @@ import {log} from './logger';
 export interface IQueryResult<T> {
     next: any;
     items: T[];
+    count: number;
 }
 
 export enum CACHE_ACTION {
@@ -170,6 +171,7 @@ export class DynamoDB {
                 return {
                     items: [],
                     next: data.LastEvaluatedKey,
+                    count: data.Count,
                 };
             }
             const out: Array<T> = data.Items.map((item) => {
@@ -178,6 +180,7 @@ export class DynamoDB {
             return {
                 items: out,
                 next: data.LastEvaluatedKey,
+                count: data.Count,
             };
         });
     }
@@ -212,6 +215,7 @@ export class DynamoDB {
                 return {
                     items: [],
                     next: data.LastEvaluatedKey,
+                    count: data.Count,
                 };
             }
             const out: Array<T> = data.Items.map((item) => {
@@ -220,6 +224,7 @@ export class DynamoDB {
             return {
                 items: out,
                 next: data.LastEvaluatedKey,
+                count: data.Count,
             };
         });
     }
