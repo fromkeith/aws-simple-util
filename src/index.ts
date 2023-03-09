@@ -90,4 +90,5 @@ export {IServiceOptions, SERVICE_NAME} from './options';
 
 export * from './sleep';
 export {VisibilityExtender} from './sqs.extender';
+export {EcsProtectionManager} from './ecs.protection';
 export {LoggerFunc, setAwsSimpleLogger} from './logger';
